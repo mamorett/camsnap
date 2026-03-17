@@ -32,6 +32,7 @@ func NewRootCommand(version string) *cobra.Command {
 		newDiscoverCmd(),
 		newWatchCmd(),
 		newDoctorCmd(),
+		newSlackCmd(),
 		newVersionCmd(version),
 	)
 

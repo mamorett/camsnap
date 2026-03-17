@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.0
+- Integrate Slack file upload: post captured snapshots and clips directly to Slack.
+- Support both channels (`#general`, `C0123...`) and direct messages (`@alice`, `U0123...`).
+- Add `camsnap slack set` to store Slack tokens and default channels in config.
+- Add `camsnap slack test` for quick credential validation.
+- Support `SLACK_TOKEN` environment variable and `--slack-token` / `--slack-channel` flag overrides.
+
 ## 0.2.0
 - Add explicit `path` support to store tokenized RTSP URLs (e.g., UniFi Protect) and wire it through add/snap/clip/watch.
 - Preserve legacy stream handling while allowing custom paths and per-camera defaults.

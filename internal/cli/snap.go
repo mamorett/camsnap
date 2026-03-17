@@ -21,6 +21,9 @@ func newSnapCmd() *cobra.Command {
 	var stream string
 	var client string
 	var path string
+	var slackChannel string
+	var slackToken string
+	var slackMessage string
 
 	cmd := &cobra.Command{
 		Use:   "snap",
@@ -107,18 +110,26 @@ func newSnapCmd() *cobra.Command {
 			}
 
 			if client == "gortsplib" {
-				return rtspclient.GrabFrameViaGort(ctx, url, xport, outPath, timeout)
+				err = rtspclient.GrabFrameViaGort(ctx, url, xport, outPath, timeout)
+			} else {
+				ffArgs := []string{
+					"-y",
+					"-rtsp_transport", xport,
+					"-i", url,
+					"-frames:v", "1",
+					"-q:v", "2",
+					outPath,
+				}
+				err = exec.RunFFmpeg(ctx, ffArgs...)
 			}
 
-			ffArgs := []string{
-				"-y",
-				"-rtsp_transport", xport,
-				"-i", url,
-				"-frames:v", "1",
-				"-q:v", "2",
-				outPath,
+			if err != nil {
+				return err
 			}
-			return exec.RunFFmpeg(ctx, ffArgs...)
+
+			token := resolveSlackToken(slackToken, cfg)
+			ch := resolveSlackChannel(slackChannel, cfg)
+			return maybeUploadToSlack(outPath, token, ch, slackMessage, cmd)
 		},
 	}
 
@@ -130,6 +141,7 @@ func newSnapCmd() *cobra.Command {
 	cmd.Flags().StringVar(&stream, "stream", "", "RTSP path segment (stream1 or stream2); ignored if --path is set")
 	cmd.Flags().StringVar(&path, "path", "", "Custom RTSP path (overrides --stream), e.g., /Bfy... from UniFi Protect")
 	cmd.Flags().StringVar(&client, "rtsp-client", "ffmpeg", "RTSP client: ffmpeg|gortsplib")
+	addSlackFlags(cmd, &slackChannel, &slackToken, &slackMessage)
 
 	return cmd
 }

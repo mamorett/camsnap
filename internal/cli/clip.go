@@ -22,6 +22,9 @@ func newClipCmd() *cobra.Command {
 	var noAudio bool
 	var audioCodec string
 	var path string
+	var slackChannel string
+	var slackToken string
+	var slackMessage string
 
 	cmd := &cobra.Command{
 		Use:   "clip",
@@ -130,7 +133,13 @@ func newClipCmd() *cobra.Command {
 				}
 			}
 			ffArgs = append(ffArgs, outPath)
-			return exec.RunFFmpeg(ctx, ffArgs...)
+			if err := exec.RunFFmpeg(ctx, ffArgs...); err != nil {
+				return err
+			}
+
+			token := resolveSlackToken(slackToken, cfg)
+			ch := resolveSlackChannel(slackChannel, cfg)
+			return maybeUploadToSlack(outPath, token, ch, slackMessage, cmd)
 		},
 	}
 
@@ -144,6 +153,7 @@ func newClipCmd() *cobra.Command {
 	cmd.Flags().StringVar(&path, "path", "", "Custom RTSP path (overrides --stream), e.g., /Bfy... from UniFi Protect")
 	cmd.Flags().BoolVar(&noAudio, "no-audio", false, "Drop audio track")
 	cmd.Flags().StringVar(&audioCodec, "audio-codec", "", "Audio codec (default aac); ignored if --no-audio")
+	addSlackFlags(cmd, &slackChannel, &slackToken, &slackMessage)
 
 	return cmd
 }

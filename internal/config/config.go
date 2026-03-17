@@ -26,9 +26,16 @@ type Camera struct {
 	AudioCodec    string `yaml:"audio_codec,omitempty"` // e.g., aac
 }
 
+// SlackConfig holds Slack-related configuration.
+type SlackConfig struct {
+	Token          string `yaml:"token,omitempty"`
+	DefaultChannel string `yaml:"default_channel,omitempty"`
+}
+
 // Config is the root configuration struct.
 type Config struct {
-	Cameras []Camera `yaml:"cameras"`
+	Cameras []Camera    `yaml:"cameras"`
+	Slack   SlackConfig `yaml:"slack,omitempty"`
 }
 
 // DefaultConfigPath returns the OS-specific config file path.

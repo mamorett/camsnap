@@ -65,6 +65,23 @@ go run ./cmd/camsnap doctor --probe --rtsp-transport udp
 - C225 works with `udp` + `stream1` (ffmpeg client).
 - mp4 + PCMA audio can fail; use `--no-audio` or `--audio-codec aac`.
 
+### Slack Integration
+Post snapshots or clips directly to a Slack channel or DM.
+
+```sh
+# 1. Store credentials once
+go run ./cmd/camsnap slack set --token xoxb-YOUR-TOKEN --channel "#alerts"
+
+# 2. Send a snap directly to Slack
+go run ./cmd/camsnap snap kitchen --slack-channel "#alerts"
+
+# 3. DM a user
+go run ./cmd/camsnap clip kitchen --dur 5s --slack-channel "@alice" --slack-message "Motion clip"
+
+# Alternatively, use the SLACK_TOKEN environment variable
+SLACK_TOKEN=xoxb-... go run ./cmd/camsnap snap kitchen --slack-channel C0123456789
+```
+
 ## Behavior notes
 - Motion uses ffmpeg scene-change detection; actions can log JSON (`--json`).
 - Doctor classifies ffmpeg probe errors (auth vs network).
