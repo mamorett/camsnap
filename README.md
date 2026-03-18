@@ -87,6 +87,24 @@ SLACK_TOKEN=xoxb-... go run ./cmd/camsnap snap kitchen --slack-channel C01234567
 - Doctor classifies ffmpeg probe errors (auth vs network).
 - Per-camera defaults reduce flag noise for devices with quirks.
 
+## AI Agent Integration (Skills)
+
+`camsnap` includes a dedicated skill definition (`SKILL.md`) that allows AI agents to understand and execute its commands effectively.
+
+### Gemini CLI
+1. Install the pre-packaged skill:
+   ```sh
+   gemini skills install camsnap.skill --scope workspace
+   ```
+2. Reload your skills in the interactive session: `/skills reload`.
+3. You can now ask Gemini to "Take a snapshot from the kitchen camera" or "Set up motion monitoring for the porch".
+
+### Claude Code / OpenCode / OpenClaw
+These agents can use the `SKILL.md` file as a context provider:
+1. Ensure `SKILL.md` is in your project root.
+2. For **Claude Code**, the agent will automatically index `SKILL.md` to understand how to interact with your cameras.
+3. For **OpenCode/OpenClaw**, you can explicitly point the agent to `SKILL.md` to provide it with the necessary procedural knowledge for camera operations.
+
 ## Roadmap
 - ONVIF device-info fetch with WS-Security.
 - Ubiquiti Protect local API integration.
