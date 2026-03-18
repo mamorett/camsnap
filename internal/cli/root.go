@@ -51,8 +51,10 @@ func exampleText() string {
 	var b strings.Builder
 	b.WriteString("  camsnap add --name kitchen --host 192.168.0.175 --user tapo --pass secret --rtsp-transport udp --stream stream2\n")
 	b.WriteString("  camsnap snap kitchen --out shot.jpg\n")
+	b.WriteString("  camsnap snap kitchen --slack-channel #security --slack-message \"Kitchen check!\"\n")
 	b.WriteString("  camsnap clip kitchen --dur 5s --no-audio --out clip.mp4\n")
-	b.WriteString("  camsnap watch kitchen --threshold 0.2 --cooldown 5s --json --action 'touch /tmp/motion'\n")
+	b.WriteString("  camsnap clip kitchen --dur 10s --slack-channel @steve\n")
+	b.WriteString("  camsnap watch kitchen --threshold 0.2 --cooldown 5s --action 'camsnap snap kitchen --slack-channel #alerts'\n")
 	b.WriteString("  camsnap doctor --probe --rtsp-transport udp\n")
 	return b.String()
 }

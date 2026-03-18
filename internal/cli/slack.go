@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/muesli/termenv"
 	"github.com/spf13/cobra"
 	"github.com/steipete/camsnap/internal/config"
 	"github.com/steipete/camsnap/internal/slack"
@@ -43,7 +44,11 @@ func maybeUploadToSlack(
 		return fmt.Errorf("slack-channel specified but no token found (use --slack-token or SLACK_TOKEN environment variable)")
 	}
 
-	cmd.Printf("Uploading %s to Slack (%s)…\n", filePath, channelArg)
+	p := termenv.ColorProfile()
+	blue := termenv.String().Foreground(p.Color("#00acc1")).Styled
+	green := termenv.String().Foreground(p.Color("#4caf50")).Styled
+
+	cmd.Printf("%s uploading %s to Slack (%s)…\n", blue("→"), filePath, channelArg)
 
 	uploader := slack.NewSlackUploader(token)
 	channelID, err := uploader.ResolveChannel(channelArg)
@@ -57,9 +62,9 @@ func maybeUploadToSlack(
 	}
 
 	if len(resp.Files) > 0 {
-		cmd.Printf("Slack upload complete! File ID: %s\n", resp.Files[0].ID)
+		cmd.Printf("%s Slack upload complete! File ID: %s\n", green("✔"), resp.Files[0].ID)
 	} else {
-		cmd.Printf("Slack upload complete!\n")
+		cmd.Printf("%s Slack upload complete!\n", green("✔"))
 	}
 
 	return nil

@@ -271,10 +271,10 @@ func isSlackID(s string) bool {
 	return true
 }
 
-// UploadFile uploads a file to a Slack channel using the new two-step API.
+// UploadFile uploads a file to a Slack channel using the new three-step API.
 // channelID can be empty to upload without sharing to a channel.
 func (s *SlackUploader) UploadFile(filePath, channelID, initialComment string) (*CompleteUploadResponse, error) {
-	// --- Step 0: Read the file ---
+	// --- Step 0: Read the file info ---
 	f, err := os.Open(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("opening file: %w", err)
@@ -284,11 +284,6 @@ func (s *SlackUploader) UploadFile(filePath, channelID, initialComment string) (
 	fileInfo, err := f.Stat()
 	if err != nil {
 		return nil, fmt.Errorf("stat file: %w", err)
-	}
-
-	fileBytes, err := io.ReadAll(f)
-	if err != nil {
-		return nil, fmt.Errorf("reading file: %w", err)
 	}
 
 	fileName := filepath.Base(filePath)
@@ -301,18 +296,18 @@ func (s *SlackUploader) UploadFile(filePath, channelID, initialComment string) (
 	// --- Step 1: Get upload URL ---
 	uploadResp, err := s.getUploadURL(fileName, fileSize, mimeType)
 	if err != nil {
-		return nil, fmt.Errorf("getting upload URL: %w", err)
+		return nil, fmt.Errorf("getting upload URL (step 1/3): %w", err)
 	}
 
 	// --- Step 2: Upload the file content to the provided URL ---
-	if err := s.uploadContent(uploadResp.UploadURL, fileBytes, mimeType); err != nil {
-		return nil, fmt.Errorf("uploading file content: %w", err)
+	if err := s.uploadContent(uploadResp.UploadURL, f, fileSize, mimeType); err != nil {
+		return nil, fmt.Errorf("uploading file content (step 2/3): %w", err)
 	}
 
 	// --- Step 3: Complete the upload ---
 	completeResp, err := s.completeUpload(uploadResp.FileID, channelID, initialComment)
 	if err != nil {
-		return nil, fmt.Errorf("completing upload: %w", err)
+		return nil, fmt.Errorf("completing upload (step 3/3): %w", err)
 	}
 
 	return completeResp, nil
@@ -320,15 +315,13 @@ func (s *SlackUploader) UploadFile(filePath, channelID, initialComment string) (
 
 // getUploadURL calls files.getUploadURLExternal to obtain a pre-signed upload URL.
 func (s *SlackUploader) getUploadURL(fileName string, fileSize int64, mimeType string) (*UploadURLResponse, error) {
-	url := fmt.Sprintf(
-		"%s/files.getUploadURLExternal?filename=%s&length=%d&alt_txt=%s",
-		s.apiURL(""),
-		fileName,
-		fileSize,
-		mimeType,
-	)
+	v := url.Values{}
+	v.Set("filename", fileName)
+	v.Set("length", fmt.Sprintf("%d", fileSize))
 
-	req, err := http.NewRequest(http.MethodGet, url, nil)
+	apiURL := s.apiURL("/files.getUploadURLExternal") + "?" + v.Encode()
+
+	req, err := http.NewRequest(http.MethodGet, apiURL, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -351,11 +344,12 @@ func (s *SlackUploader) getUploadURL(fileName string, fileSize int64, mimeType s
 }
 
 // uploadContent performs a raw POST of the file bytes to the pre-signed upload URL.
-func (s *SlackUploader) uploadContent(uploadURL string, data []byte, mimeType string) error {
-	req, err := http.NewRequest(http.MethodPost, uploadURL, bytes.NewReader(data))
+func (s *SlackUploader) uploadContent(uploadURL string, data io.Reader, size int64, mimeType string) error {
+	req, err := http.NewRequest(http.MethodPost, uploadURL, data)
 	if err != nil {
 		return err
 	}
+	req.ContentLength = size
 	req.Header.Set("Content-Type", mimeType)
 
 	resp, err := http.DefaultClient.Do(req)
@@ -364,7 +358,7 @@ func (s *SlackUploader) uploadContent(uploadURL string, data []byte, mimeType st
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated && resp.StatusCode != http.StatusNoContent {
 		body, _ := io.ReadAll(resp.Body)
 		return fmt.Errorf("upload failed with status %d: %s", resp.StatusCode, string(body))
 	}

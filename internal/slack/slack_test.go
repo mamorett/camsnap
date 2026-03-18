@@ -81,13 +81,13 @@ func TestResolveChannel(t *testing.T) {
 		want     string
 		wantErr  bool
 	}{
-		{"C111", "C111", false},       // Direct ID
-		{"#general", "C111", false},   // Name with #
-		{"general", "C111", false},    // Name without #
-		{"@alice", "D333", false},     // User with @
-		{"alice", "D333", false},      // User without @ (after channel lookup fails)
-		{"U222", "D333", false},       // User ID
-		{"nonexistent", "", true},     // Not found
+		{"C111", "C111", false},     // Direct ID
+		{"#general", "C111", false}, // Name with #
+		{"general", "C111", false},  // Name without #
+		{"@alice", "D333", false},   // User with @
+		{"alice", "D333", false},    // User without @ (after channel lookup fails)
+		{"U222", "D333", false},     // User ID
+		{"nonexistent", "", true},   // Not found
 	}
 
 	for _, tt := range tests {
