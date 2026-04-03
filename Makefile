@@ -25,8 +25,12 @@ build-linux-arm64:
 build-linux-arm:
 	@GOOS=linux GOARCH=arm GOARM=7 go build -o bin/camsnap-linux-arm ./cmd/camsnap
 
+.PHONY: build-macos-arm64
+build-macos-arm64:
+	@GOOS=darwin GOARCH=arm64 go build -o bin/camsnap-macos-arm64 ./cmd/camsnap
+
 .PHONY: build-all
-build-all: build-linux-amd64 build-linux-arm64 build-linux-arm
+build-all: build-linux-amd64 build-linux-arm64 build-linux-arm build-macos-arm64
 
 .PHONY: all
 all: fmt lint test build-all
