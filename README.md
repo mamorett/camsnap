@@ -2,6 +2,7 @@
 
 ## Install / Run
 - Homebrew (installs `ffmpeg` automatically): `brew install steipete/tap/camsnap`
+- From source — build and install to `~/bin`: `make install`
 - Requirements for source run: Go 1.22+ and `ffmpeg` on PATH.
 - Run in-place: `go run ./cmd/camsnap --help`
 - Camera name may be positional (e.g., `camsnap snap kitchen ...`).

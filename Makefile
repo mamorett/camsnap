@@ -53,3 +53,30 @@ clean:
 	@echo "Cleaning..."
 	@rm -rf $(BIN_DIR)
 	@rm -f camsnap-bin
+
+.PHONY: install
+install:
+	@mkdir -p $$HOME/bin
+	BINARY=""; \
+	BUILD_TARGET=""; \
+	UNAME_S=$$(uname -s); \
+	UNAME_M=$$(uname -m); \
+	if [ "$$UNAME_S" = "Darwin" ]; then \
+		BINARY="camsnap-macos-arm64"; \
+		BUILD_TARGET="build-macos-arm64"; \
+	elif [ "$$UNAME_M" = "aarch64" ]; then \
+		BINARY="camsnap-linux-arm64"; \
+		BUILD_TARGET="build-linux-arm64"; \
+	elif [ "$$UNAME_M" = "armv7l" ]; then \
+		BINARY="camsnap-linux-arm"; \
+		BUILD_TARGET="build-linux-arm"; \
+	else \
+		BINARY="camsnap-linux-amd64"; \
+		BUILD_TARGET="build-linux-amd64"; \
+	fi; \
+	if [ ! -f $(BIN_DIR)/$$BINARY ]; then \
+		echo "Building $$BINARY (target: $$BUILD_TARGET)..."; \
+		make $$BUILD_TARGET; \
+	fi; \
+	cp $(BIN_DIR)/$$BINARY $$HOME/bin/camsnap; \
+	echo "Installed camsnap ($$BINARY) to $$HOME/bin/"
