@@ -48,11 +48,14 @@ camsnap watch kitchen --threshold 0.2 --cooldown 10s --action 'camsnap snap kitc
 ```
 
 ### 4. Diagnostics
-- **`doctor`**: Check for `ffmpeg` availability, network reachability, and probe RTSP streams.
+- **`doctor`**: Check for `ffmpeg` availability, network reachability, and probe RTSP streams to diagnose authentication or transport issues.
 
 ---
 
 ## Detailed Command Reference
+
+### Global Flags
+- `--config <path>`: Path to the configuration file (default: `$XDG_CONFIG_HOME/camsnap/config.yaml`).
 
 ### `add`
 - `--name <string>`: Unique name for the camera.
@@ -71,6 +74,7 @@ camsnap watch kitchen --threshold 0.2 --cooldown 10s --action 'camsnap snap kitc
 - `--out <path>`: Path to save the image. If omitted, a temporary file is created.
 - `--timeout <duration>`: Connection timeout (e.g., 20s).
 - `--slack-channel <channel>`: Slack channel or user ID.
+- `--slack-message <string>`: Optional message to include with the Slack upload.
 
 ### `clip`
 - `[camera-name]`: Positional argument for the camera name.
@@ -79,6 +83,7 @@ camsnap watch kitchen --threshold 0.2 --cooldown 10s --action 'camsnap snap kitc
 - `--no-audio`: Disable audio recording.
 - `--audio-codec <codec>`: Set audio codec (e.g., aac).
 - `--slack-channel <channel>`: Slack channel or user ID.
+- `--slack-message <string>`: Optional message to include with the Slack upload.
 
 ### `watch`
 - `[camera-name]`: Positional argument for the camera name.
