@@ -1,36 +1,55 @@
-GOFILES := $(shell find . -name '*.go' -not -path './vendor/*')
+GOFILES := $(shell find . -name "*.go" -not -path "./vendor/*")
+BIN_DIR := bin
+
+.PHONY: all
+all: fmt lint test build-all
 
 .PHONY: fmt
 fmt:
-	@gofmt -w $(GOFILES)
-	@goimports -w $(GOFILES)
+	@echo "Formatting..."
+	@gofmt -s -w .
+	@if command -v goimports >/dev/null; then goimports -w $(GOFILES); else echo "Skipping goimports (not installed)"; fi
 
 .PHONY: lint
 lint:
-	@golangci-lint run ./...
+	@echo "Linting..."
+	@if command -v golangci-lint >/dev/null; then golangci-lint run ./...; else echo "Skipping lint (golangci-lint not installed)"; fi
 
 .PHONY: test
 test:
+	@echo "Testing..."
 	@go test ./...
+
+.PHONY: build
+build:
+	@mkdir -p $(BIN_DIR)
+	@go build -o $(BIN_DIR)/camsnap ./cmd/camsnap
 
 .PHONY: build-linux-amd64
 build-linux-amd64:
-	@GOOS=linux GOARCH=amd64 go build -o bin/camsnap-linux-amd64 ./cmd/camsnap
+	@mkdir -p $(BIN_DIR)
+	@GOOS=linux GOARCH=amd64 go build -o $(BIN_DIR)/camsnap-linux-amd64 ./cmd/camsnap
 
 .PHONY: build-linux-arm64
 build-linux-arm64:
-	@GOOS=linux GOARCH=arm64 go build -o bin/camsnap-linux-arm64 ./cmd/camsnap
+	@mkdir -p $(BIN_DIR)
+	@GOOS=linux GOARCH=arm64 go build -o $(BIN_DIR)/camsnap-linux-arm64 ./cmd/camsnap
 
 .PHONY: build-linux-arm
 build-linux-arm:
-	@GOOS=linux GOARCH=arm GOARM=7 go build -o bin/camsnap-linux-arm ./cmd/camsnap
+	@mkdir -p $(BIN_DIR)
+	@GOOS=linux GOARCH=arm GOARM=7 go build -o $(BIN_DIR)/camsnap-linux-arm ./cmd/camsnap
 
 .PHONY: build-macos-arm64
 build-macos-arm64:
-	@GOOS=darwin GOARCH=arm64 go build -o bin/camsnap-macos-arm64 ./cmd/camsnap
+	@mkdir -p $(BIN_DIR)
+	@GOOS=darwin GOARCH=arm64 go build -o $(BIN_DIR)/camsnap-macos-arm64 ./cmd/camsnap
 
 .PHONY: build-all
 build-all: build-linux-amd64 build-linux-arm64 build-linux-arm build-macos-arm64
 
-.PHONY: all
-all: fmt lint test build-all
+.PHONY: clean
+clean:
+	@echo "Cleaning..."
+	@rm -rf $(BIN_DIR)
+	@rm -f camsnap-bin

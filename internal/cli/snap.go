@@ -113,10 +113,15 @@ func newSnapCmd() *cobra.Command {
 				err = rtspclient.GrabFrameViaGort(ctx, url, xport, outPath, timeout)
 			} else {
 				ffArgs := []string{
+					"-timeout", "7000000",
 					"-y",
 					"-rtsp_transport", xport,
+					"-skip_frame", "nokey",
 					"-i", url,
+					"-vsync", "0",
 					"-frames:v", "1",
+					"-ss", "00:00:02",
+					"-flags2", "+showall",
 					"-q:v", "2",
 					outPath,
 				}
@@ -135,7 +140,7 @@ func newSnapCmd() *cobra.Command {
 
 	cmd.Flags().StringVar(&cameraName, "camera", "", "Camera name to use")
 	cmd.Flags().StringVar(&outPath, "out", "", "Output file (e.g., snap.jpg)")
-	cmd.Flags().DurationVar(&timeout, "timeout", 10*time.Second, "Timeout for ffmpeg invocation")
+	cmd.Flags().DurationVar(&timeout, "timeout", 30*time.Second, "Timeout for ffmpeg invocation")
 	cmd.Flags().StringVar(&authMode, "rtsp-auth", "auto", "RTSP auth mode: auto|basic|digest")
 	cmd.Flags().StringVar(&transport, "rtsp-transport", "tcp", "RTSP transport: tcp|udp")
 	cmd.Flags().StringVar(&stream, "stream", "", "RTSP path segment (stream1 or stream2); ignored if --path is set")
