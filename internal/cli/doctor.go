@@ -106,10 +106,16 @@ func probeRTSP(_ *cobra.Command, url string, timeout time.Duration, authMode, tr
 		args := []string{
 			"-hide_banner",
 			"-loglevel", "error",
+			"-timeout", "7000000",
 			"-rtsp_transport", xport,
+			"-analyzeduration", "1000000",
+			"-probesize", "1000000",
+			"-skip_frame", "nokey",
 		}
 		args = append(args,
 			"-i", url,
+			"-vsync", "0",
+			"-flags2", "+showall",
 			"-t", "1",
 			"-f", "null",
 			"-",

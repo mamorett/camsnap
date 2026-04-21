@@ -146,7 +146,7 @@ func newClipCmd() *cobra.Command {
 	cmd.Flags().StringVar(&cameraName, "camera", "", "Camera name to use")
 	cmd.Flags().StringVar(&outPath, "out", "", "Output file (e.g., clip.mp4)")
 	cmd.Flags().DurationVar(&duration, "dur", 10*time.Second, "Clip duration (e.g., 10s)")
-	cmd.Flags().DurationVar(&timeout, "timeout", 20*time.Second, "Timeout for ffmpeg invocation")
+	cmd.Flags().DurationVar(&timeout, "timeout", 30*time.Second, "Timeout for ffmpeg invocation")
 	cmd.Flags().StringVar(&authMode, "rtsp-auth", "auto", "RTSP auth mode: auto|basic|digest")
 	cmd.Flags().StringVar(&transport, "rtsp-transport", "tcp", "RTSP transport: tcp|udp")
 	cmd.Flags().StringVar(&stream, "stream", "", "RTSP path segment (stream1 or stream2); ignored if --path is set")

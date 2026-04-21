@@ -82,27 +82,48 @@ func GrabFrameViaGort(ctx context.Context, url, transport, outPath string, timeo
 	done := make(chan struct{})
 	errCh := make(chan error, 1)
 
+	var capturing bool
+	var captureTS uint32
+
 	cl.OnPacketRTP(medi, fmtH264, func(pkt *rtp.Packet) {
-		nalus, err := dec.Decode(pkt)
-		if err != nil {
-			if err != rtph264.ErrMorePacketsNeeded {
-				// ignore non-fatal decode errors
-				return
-			}
-			return
-		}
-		if len(nalus) == 0 {
-			return
-		}
-		for _, n := range nalus {
-			sample.Write([]byte{0x00, 0x00, 0x00, 0x01})
-			sample.Write(n)
-		}
-		if h264.IsRandomAccess(nalus) {
+		// If we are capturing and the timestamp changes, we have received the full frame.
+		// We MUST check this before dec.Decode absorbs the packet!
+		if capturing && pkt.Timestamp != captureTS {
 			select {
 			case <-done:
 			default:
 				close(done)
+			}
+			return
+		}
+
+		nalus, err := dec.Decode(pkt)
+		if err != nil {
+			if err != rtph264.ErrMorePacketsNeeded {
+				return
+			}
+		}
+
+		if len(nalus) > 0 {
+			if !capturing && h264.IsRandomAccess(nalus) {
+				capturing = true
+				captureTS = pkt.Timestamp
+				// Prepend SPS/PPS from SDP
+				if len(fmtH264.SPS) > 0 {
+					sample.Write([]byte{0x00, 0x00, 0x00, 0x01})
+					sample.Write(fmtH264.SPS)
+				}
+				if len(fmtH264.PPS) > 0 {
+					sample.Write([]byte{0x00, 0x00, 0x00, 0x01})
+					sample.Write(fmtH264.PPS)
+				}
+			}
+
+			if capturing {
+				for _, n := range nalus {
+					sample.Write([]byte{0x00, 0x00, 0x00, 0x01})
+					sample.Write(n)
+				}
 			}
 		}
 	})
