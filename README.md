@@ -41,6 +41,15 @@ go run ./cmd/camsnap clip kitchen --dur 5s --no-audio --out clip.mp4
 #   go run ./cmd/camsnap clip ssg15-livingroom --path Bfy47SNWz9n2WRrw --dur 5s --out clip.mp4
 ```
 
+### Audio
+```sh
+go run ./cmd/camsnap audio kitchen --seconds 10 --out output_audio.wav
+# audio stream is copied (-c:a copy) without re-encoding; default duration is 10s
+# existing output files are protected from overwrite unless --overwrite is passed
+# can also be recorded via clip:
+#   go run ./cmd/camsnap clip kitchen --audio-only --dur 10s --out output_audio.wav
+```
+
 ### Motion watch
 ```sh
 go run ./cmd/camsnap watch kitchen --threshold 0.2 --cooldown 5s \

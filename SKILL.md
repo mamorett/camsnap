@@ -26,6 +26,7 @@ camsnap list
 ### 2. Media Capture
 - **`snap`**: Grab a single frame from a camera.
 - **`clip`**: Record a short MP4 clip (e.g., 5-10s).
+- **`audio`**: Record an audio-only clip (default 10s, wav format, copy codec).
 - **Slack Integration**: Use the `--slack-channel` and `--slack-message` flags to send media directly to Slack.
 
 **Examples:**
@@ -35,6 +36,9 @@ camsnap snap kitchen --out /tmp/snapshot.jpg
 
 # Record a 5s clip and send to Slack
 camsnap clip kitchen --dur 5s --slack-channel #security --slack-message "Motion detected!"
+
+# Record 10s of audio only to a WAV file
+camsnap audio kitchen --seconds 10 --out /tmp/audio.wav
 ```
 
 ### 3. Motion Monitoring
@@ -79,9 +83,22 @@ camsnap watch kitchen --threshold 0.2 --cooldown 10s --action 'camsnap snap kitc
 ### `clip`
 - `[camera-name]`: Positional argument for the camera name.
 - `--dur <duration>`: Duration of the clip (e.g., 5s, 10s).
+- `--seconds <int>`: Duration in seconds (alternative to `--dur`).
 - `--out <path>`: Path to save the video (mp4).
 - `--no-audio`: Disable audio recording.
-- `--audio-codec <codec>`: Set audio codec (e.g., aac).
+- `--audio-only`: Record audio only (drops video track, defaults to .wav and codec copy).
+- `--audio-codec <codec>`: Set audio codec (e.g., aac, copy).
+- `--overwrite`: Overwrite output file if it exists.
+- `--slack-channel <channel>`: Slack channel or user ID.
+- `--slack-message <string>`: Optional message to include with the Slack upload.
+
+### `audio`
+- `[camera-name]`: Positional argument for the camera name.
+- `--dur <duration>`: Duration of the audio clip (e.g., 10s).
+- `--seconds <int>`: Duration in seconds (alternative to `--dur`, default 10s).
+- `--out <path>`: Path to save the audio (.wav). If omitted, a temporary file is created.
+- `--audio-codec <codec>`: Audio codec to use (default: copy).
+- `--overwrite`: Overwrite output file if it exists (default: false, do not overwrite).
 - `--slack-channel <channel>`: Slack channel or user ID.
 - `--slack-message <string>`: Optional message to include with the Slack upload.
 

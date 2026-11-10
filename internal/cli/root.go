@@ -29,6 +29,7 @@ func NewRootCommand(version string) *cobra.Command {
 		newListCmd(),
 		newSnapCmd(),
 		newClipCmd(),
+		newAudioCmd(),
 		newDiscoverCmd(),
 		newWatchCmd(),
 		newDoctorCmd(),
@@ -54,6 +55,7 @@ func exampleText() string {
 	b.WriteString("  camsnap snap kitchen --slack-channel #security --slack-message \"Kitchen check!\"\n")
 	b.WriteString("  camsnap clip kitchen --dur 5s --no-audio --out clip.mp4\n")
 	b.WriteString("  camsnap clip kitchen --dur 10s --slack-channel @steve\n")
+	b.WriteString("  camsnap audio kitchen --seconds 10 --out audio.wav\n")
 	b.WriteString("  camsnap watch kitchen --threshold 0.2 --cooldown 5s --action 'camsnap snap kitchen --slack-channel #alerts'\n")
 	b.WriteString("  camsnap doctor --probe --rtsp-transport udp\n")
 	return b.String()
@@ -65,11 +67,12 @@ func colorizeLong() string {
 	b := termenv.String().Foreground(p.Color("#00acc1")).Styled
 	r := termenv.String().Foreground(p.Color("#e53935")).Styled
 
-	return fmt.Sprintf("%s %s\n\n%s\n  %s\n  %s\n  %s\n",
+	return fmt.Sprintf("%s %s\n\n%s\n  %s\n  %s\n  %s\n  %s\n",
 		b("camsnap"), "– capture frames/clips and motion from RTSP/ONVIF cameras.",
 		b("Common commands:"),
 		g("snap")+"     grab a frame (positional camera name allowed)",
 		g("clip")+"     short clip; drop audio with --no-audio",
+		g("audio")+"    record audio clip (default 10s, copy codec, .wav)",
 		r("doctor")+"   checks ffmpeg, reachability, optional RTSP probe",
 	)
 }
