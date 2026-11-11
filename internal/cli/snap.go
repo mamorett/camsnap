@@ -118,7 +118,7 @@ func newSnapCmd() *cobra.Command {
 					"-rtsp_transport", xport,
 					"-skip_frame", "nokey",
 					"-i", url,
-					"-vsync", "0",
+					"-fps_mode", "passthrough",
 					"-frames:v", "1",
 					"-ss", "00:00:02",
 					"-flags2", "+showall",

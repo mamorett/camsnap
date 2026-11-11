@@ -114,7 +114,7 @@ func probeRTSP(_ *cobra.Command, url string, timeout time.Duration, authMode, tr
 		}
 		args = append(args,
 			"-i", url,
-			"-vsync", "0",
+			"-fps_mode", "passthrough",
 			"-flags2", "+showall",
 			"-t", "1",
 			"-f", "null",
